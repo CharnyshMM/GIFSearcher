@@ -1,0 +1,21 @@
+GIF Searcher
+
+Using the Giphy API, create an app to be able to search for GIFs.
+Requirements
+
+GIFs must animate.
+
+The main view should:
+Show a list of Trending GIFs.
+Show a search bar so a user can find a GIF.
+
+After the user searches for a term, app will display results of search right there in the main view.
+
+You can use HTTP libraries like Retrofit/OKHttp, but not API clients like GiphyAndroidApi.
+Caution: Giphy API may send down height and width properties as a String instead of a float.
+You may use 3rd party dependencies through Gradle in helping you build your app. If you use Gradle, please don't commit 3rd party source code.
+
+Your solution should include a README explaining how to set up and run the project.
+Bonus points for a nice and interesting UI.
+Please use MVVM, and functional programming techniques where possible. Some libraries we enjoy are RxJava or Coroutines.
+The following languages are acceptable: Java and Kotlin.
