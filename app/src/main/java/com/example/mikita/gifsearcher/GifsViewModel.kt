@@ -16,6 +16,7 @@ class GifsViewModel : ViewModel() {
     val pagedGifsList: LiveData<PagedList<GifObjectModel>> = LivePagedListBuilder<Int, GifObjectModel>(
         GifsDataSource.GifsDataSourceFactory,
         PagedList.Config.Builder()
+            .setInitialLoadSizeHint(10)
             .setPageSize(10)
             .setEnablePlaceholders(false)
             .build()

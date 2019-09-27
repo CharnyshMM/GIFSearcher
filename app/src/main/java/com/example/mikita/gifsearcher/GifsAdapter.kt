@@ -24,27 +24,29 @@ class GifsAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-
+        val gif = getItem(position)!!
         Glide.with(context)
             .asGif()
-            .load(getItem(position)?.images!!.original.url)
+            .load(gif.images.original.url)
             .placeholder(R.drawable.ic_launcher_background)
             .into(holder.gifImageView)
+        holder.titleTextView.setText(gif.title)
     }
 
     class ViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
         val gifImageView = view.gif_list_item__image_view
+        val titleTextView = view.gif_list_item__title_text_view
     }
 
 
     companion object {
         val diffCallback = object : DiffUtil.ItemCallback<GifObjectModel>() {
             override fun areItemsTheSame(oldItem: GifObjectModel, newItem: GifObjectModel): Boolean {
-                return oldItem.id == newItem.id
+                return oldItem.id == newItem.id && oldItem.title == newItem.title
             }
 
             override fun areContentsTheSame(oldItem: GifObjectModel, newItem: GifObjectModel): Boolean {
-                return oldItem.source == newItem.source
+                return oldItem.source == newItem.source && oldItem.title == newItem.title
             }
 
         }
