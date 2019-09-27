@@ -7,6 +7,7 @@ import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
+import androidx.paging.PagedList
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mikita.gifsearcher.Model.GifObjectModel
 import com.example.mikita.gifsearcher.Model.ImageObjectModel
@@ -21,26 +22,25 @@ class MainActivity : AppCompatActivity() {
 
     val API_KEY:String = "TCjvJJXGE1qps7VXheY8Cy3ECHJfgXBt"
 
-    val gifs: ArrayList<GifObjectModel> = ArrayList()
+
     var gifsAdapter: GifsAdapter? = null
+    var viewModel:GifsViewModel? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        gifsAdapter = GifsAdapter(gifs, this)
-        val model = ViewModelProviders.of(this)[GifsViewModel::class.java]
-        model.getGifs().observe(this, Observer<ResponseObjectModel> { giphyResponse ->
-            run {
-                gifs.addAll(giphyResponse.data)
-                gifsAdapter!!.notifyDataSetChanged()
-            }
+        viewModel = ViewModelProviders.of(this).get(GifsViewModel::class.java)
+        gifsAdapter = GifsAdapter(this)
 
+        viewModel!!.pagedGifsList.observe(this, Observer {
+                list -> run {
+                    Log.d("observer", "*submits a list*, len="+list.size)
+                    gifsAdapter?.submitList(list)
+                }
         })
-
         main__recycler_view.layoutManager = LinearLayoutManager(this)
         main__recycler_view.adapter = gifsAdapter
-
 
     }
 }

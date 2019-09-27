@@ -4,7 +4,7 @@ import com.squareup.moshi.Json
 
 
 data class PaginationObjectModel (
-    @Json(name="total_count")val totalCount: Int,
     val count: Int,
+    @Json(name="total_count") val total_count: Int,
     val offset: Int
 )
