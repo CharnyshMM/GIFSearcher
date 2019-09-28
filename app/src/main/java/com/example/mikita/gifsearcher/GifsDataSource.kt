@@ -9,16 +9,32 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class GifsDataSource : PositionalDataSource<GifObjectModel>() {
-    val giphyAPIService = GiphyAPIService.create()
+class GifsDataSource(val queryString: String?) : PositionalDataSource<GifObjectModel>() {
+    val giphyAPIService = GiphyAPIService.Factory.create()
 
     override fun loadInitial(params: LoadInitialParams, callback: LoadInitialCallback<GifObjectModel>) {
-        Log.d("GifsDataSource.loadInit", "reqLoadSIze="+params.requestedLoadSize+" ReqStartPos="+params.requestedStartPosition+" pageSize="+ params.pageSize)
-        giphyAPIService
-            .getTrendingGifs(GifsRepository.API_KEY, limit=params.requestedLoadSize, offset=params.requestedStartPosition)
-            .enqueue(object: Callback<ResponseObjectModel> {
+        var call:Call<ResponseObjectModel>? = null
+
+        if (queryString == null || queryString == "") {
+            call = giphyAPIService
+                .getTrendingGifs(
+                    BuildConfig.GIPHY_API_KEY,
+                    limit = params.requestedLoadSize,
+                    offset = params.requestedStartPosition
+                )
+        } else {
+            call = giphyAPIService
+                .getGifsByQuery(
+                    BuildConfig.GIPHY_API_KEY,
+                    query = queryString,
+                    limit = params.requestedLoadSize,
+                    offset = params.requestedStartPosition
+                )
+        }
+            call.enqueue(object: Callback<ResponseObjectModel> {
                 override fun onFailure(call: Call<ResponseObjectModel>, t: Throwable) {
                     Log.d("GifsRepo", "on retrofit failure")
+
                 }
 
                 override fun onResponse(call: Call<ResponseObjectModel>, response: Response<ResponseObjectModel>) {
@@ -33,17 +49,32 @@ class GifsDataSource : PositionalDataSource<GifObjectModel>() {
     }
 
     override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<GifObjectModel>) {
-        Log.d("loadRange", "params.startPosition="+params.startPosition + " loadSIze= "+params.loadSize)
-        giphyAPIService
-            .getTrendingGifs(GifsRepository.API_KEY, limit=params.loadSize, offset=params.startPosition)
-            .enqueue(object: Callback<ResponseObjectModel> {
+        var call:Call<ResponseObjectModel>? = null
+
+        if (queryString == null || queryString == "") {
+            call = giphyAPIService
+                .getTrendingGifs(
+                    BuildConfig.GIPHY_API_KEY,
+                    limit = params.loadSize,
+                    offset = params.startPosition
+                )
+        } else {
+            call = giphyAPIService
+                .getGifsByQuery(
+                    BuildConfig.GIPHY_API_KEY,
+                    query = queryString,
+                    limit = params.loadSize,
+                    offset = params.startPosition
+                )
+        }
+
+        call.enqueue(object: Callback<ResponseObjectModel> {
                 override fun onFailure(call: Call<ResponseObjectModel>, t: Throwable) {
                     Log.d("GifsRepo", "on retrofit failure")
                 }
 
                 override fun onResponse(call: Call<ResponseObjectModel>, response: Response<ResponseObjectModel>) {
                     if (response.isSuccessful) {
-                        val result: ResponseObjectModel = response.body()!!
                         val body = response.body()
                         callback.onResult(body!!.data)// body.pagination.count+ body.pagination.offset, body.pagination.total_count)
                     }
@@ -53,9 +84,9 @@ class GifsDataSource : PositionalDataSource<GifObjectModel>() {
     }
 
 
-    companion object GifsDataSourceFactory : DataSource.Factory<Int, GifObjectModel>() {
+    class GifsDataSourceFactory(val queryString: String? = null) : DataSource.Factory<Int, GifObjectModel>() {
         override fun create(): DataSource<Int, GifObjectModel> {
-            return GifsDataSource()
+            return GifsDataSource(queryString)
         }
     }
 

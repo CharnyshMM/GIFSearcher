@@ -1,12 +1,14 @@
 package com.example.mikita.gifsearcher
 
 import com.example.mikita.gifsearcher.Model.ResponseObjectModel
+import okhttp3.Interceptor
+import okhttp3.OkHttpClient
+import okhttp3.Response
 import retrofit2.Call;
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.GET;
-import retrofit2.http.Path;
 import retrofit2.http.Query
 
 interface GiphyAPIService {
@@ -24,6 +26,8 @@ interface GiphyAPIService {
 
     companion object Factory {
         fun create():GiphyAPIService {
+
+
             val retrofit = Retrofit.Builder()
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .addConverterFactory(MoshiConverterFactory.create())
@@ -32,5 +36,7 @@ interface GiphyAPIService {
 
             return retrofit.create(GiphyAPIService::class.java)
         }
+
+
     }
 }

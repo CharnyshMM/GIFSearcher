@@ -2,23 +2,40 @@ package com.example.mikita.gifsearcher
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
 import com.example.mikita.gifsearcher.Model.GifObjectModel
-import com.example.mikita.gifsearcher.Model.ResponseObjectModel
 
 class GifsViewModel : ViewModel() {
-    val mutableGifsData: MutableLiveData<ResponseObjectModel> by lazy {
-        GifsRepository.getTrendingGifs()
-    }
 
-    val pagedGifsList: LiveData<PagedList<GifObjectModel>> = LivePagedListBuilder<Int, GifObjectModel>(
-        GifsDataSource.GifsDataSourceFactory,
-        PagedList.Config.Builder()
-            .setInitialLoadSizeHint(10)
-            .setPageSize(10)
-            .setEnablePlaceholders(false)
-            .build()
-    ).build()
+    val queryString: MutableLiveData<String> = MutableLiveData<String>(null)
+
+
+    var pagedGifsList: LiveData<PagedList<GifObjectModel>> = Transformations.switchMap(queryString) {
+//                if (it == null || it == "") {
+//                     LivePagedListBuilder<Int, GifObjectModel>(
+//                        GifsDataSource.GifsDataSourceFactory(),
+//                        PagedList.Config.Builder()
+//                            .setInitialLoadSizeHint(10)
+//                            .setPageSize(10)
+//                            .setEnablePlaceholders(false)
+//                            .build()
+//                    ).build()
+//                } else {
+                     LivePagedListBuilder<Int, GifObjectModel>(
+                        GifsDataSource.GifsDataSourceFactory(queryString.value),
+                        PagedList.Config.Builder()
+                            .setInitialLoadSizeHint(10)
+                            .setPageSize(10)
+                            .setEnablePlaceholders(false)
+                            .build()
+                    ).build()
+//                }
+            }
+
+
+
+
 }
