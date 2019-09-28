@@ -7,10 +7,10 @@ import android.view.ViewGroup
 import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import androidx.swiperefreshlayout.widget.CircularProgressDrawable
-import com.bumptech.glide.Glide
 import com.example.mikita.gifsearcher.Model.GifObjectModel
 import com.example.mikita.gifsearcher.Model.ImageObjectModel
+import com.facebook.drawee.backends.pipeline.Fresco
+import com.facebook.drawee.interfaces.DraweeController
 import kotlinx.android.synthetic.main.gif_list_item.view.*
 
 class GifsAdapter(
@@ -25,12 +25,13 @@ class GifsAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val gif = getItem(position)!!
-        Glide.with(context)
-            .asGif()
-            .load(gif.images.original.url)
-            .placeholder(R.drawable.ic_launcher_background)
-            .into(holder.gifImageView)
-        holder.titleTextView.setText(gif.title)
+        val c = Fresco.newDraweeControllerBuilder()
+            .setUri(gif.images.original.webp)
+            .setAutoPlayAnimations(true)
+            .build()
+
+        holder.gifImageView.controller = c
+        holder.titleTextView.text = gif.title
     }
 
     class ViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
