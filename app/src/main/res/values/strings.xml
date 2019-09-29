@@ -3,4 +3,7 @@
     <string name="search_title">Search gifs</string>
     <string name="search_hint">Search gifs</string>
     <string name="search_for_gifs">Search for gifs…</string>
+    <string name="unknown_user">unknown genius</string>
+    <string name="loading_more">Loading more</string>
+    <string name="error">ERROR</string>
 </resources>

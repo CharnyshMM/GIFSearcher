@@ -7,5 +7,8 @@ data class GifObjectModel (
     val rating: String,
     val source: String,
     val title: String,
+    val slug: String,
+    val url: String,
+    val username: String,
     val images: ImagesObjectModel
 )

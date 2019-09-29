@@ -4,6 +4,7 @@ import android.app.SearchManager
 import android.content.ComponentCallbacks2
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import androidx.appcompat.app.AppCompatActivity
@@ -20,7 +21,10 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.facebook.drawee.backends.pipeline.Fresco
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -63,18 +67,17 @@ class MainActivity : AppCompatActivity() {
 
         handleIntent(intent)
 
-        gifsAdapter = GifsAdapter(this)
+        gifsAdapter = GifsAdapter(this, this.resources.configuration.orientation)
 
         viewModel!!.networkState.observe(this, Observer {
             if (it  == NetworkState.LOADING) {
-                Toast.makeText(this, "loading", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, getString(R.string.loading_more), Toast.LENGTH_LONG).show()
             } else if (it == NetworkState.ERROR) {
-                Toast.makeText(this, "ERROR", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, getString(R.string.error), Toast.LENGTH_LONG).show()
                 if (main__swipe_refresh_layout.isRefreshing) {
                     main__swipe_refresh_layout.isRefreshing = false
                 }
             } else {
-                Toast.makeText(this, "OK", Toast.LENGTH_LONG).show()
                 if (main__swipe_refresh_layout.isRefreshing) {
                     main__swipe_refresh_layout.isRefreshing = false
                 }
@@ -87,8 +90,12 @@ class MainActivity : AppCompatActivity() {
         }
         })
 
+        if (this.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            main__recycler_view.layoutManager = StaggeredGridLayoutManager(2, RecyclerView.VERTICAL)
+        } else {
+            main__recycler_view.layoutManager = LinearLayoutManager(this)
+        }
 
-        main__recycler_view.layoutManager = LinearLayoutManager(this)
         main__recycler_view.adapter = gifsAdapter
 
         main__swipe_refresh_layout.setOnRefreshListener {
