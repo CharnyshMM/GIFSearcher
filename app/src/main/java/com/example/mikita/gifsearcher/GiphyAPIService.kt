@@ -10,7 +10,6 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.GET;
 import retrofit2.http.Query
-import javax.inject.Inject
 
 
 interface GiphyAPIService {
@@ -25,4 +24,17 @@ interface GiphyAPIService {
                         @Query("limit") limit: Int = 10,
                         @Query("offset") offset: Int = 0): Call<ResponseObjectModel>
 
+    companion object Factory {
+        val BASE_URL = "https://api.giphy.com/v1/"
+
+        fun create():GiphyAPIService {
+            val retrofit = Retrofit.Builder()
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .addConverterFactory(MoshiConverterFactory.create())
+                .baseUrl(BASE_URL)
+                .build()
+
+            return retrofit.create(GiphyAPIService::class.java)
+        }
+    }
 }
