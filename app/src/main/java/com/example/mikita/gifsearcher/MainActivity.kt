@@ -9,8 +9,14 @@ import android.net.NetworkInfo
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.KeyEvent
 import android.view.Menu
+import android.view.MenuItem
+import android.view.View
+import android.view.inputmethod.EditorInfo
+import android.widget.EditText
 import android.widget.SearchView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -28,12 +34,27 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         Fresco.initialize(applicationContext)
 
+        setSupportActionBar(toolbar)
+
         if (hasInternetConnection) {
             setUpLoading()
         } else {
             Toast.makeText(this, "No internet", Toast.LENGTH_LONG).show()
         }
 
+        main__search_edit_text.setOnEditorActionListener(object : TextView.OnEditorActionListener {
+            override fun onEditorAction(v: TextView?, actionId: Int, event: KeyEvent?): Boolean {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    this@MainActivity.triggerSearch(v?.text.toString(), null)
+                    supportActionBar?.setDisplayHomeAsUpEnabled(true)
+                    v?.clearFocus()
+                    v?.onEditorAction(EditorInfo.IME_ACTION_DONE)
+                    return true
+                }
+                return false
+            }
+
+        })
 
     }
 
@@ -92,20 +113,31 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    fun clearSearch() {
+        viewModel!!.queryString.postValue(null)
+        main__search_edit_text.setText("")
+        main__search_edit_text.clearFocus()
+        supportActionBar!!.setDisplayHomeAsUpEnabled(false)
+    }
+
     override fun onNewIntent(intent: Intent?) {
         handleIntent(intent)
         super.onNewIntent(intent)
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.options_menu, menu)
-
-        val searchManager = getSystemService(Context.SEARCH_SERVICE) as SearchManager
-
-        (menu?.findItem(R.id.search)?.actionView as SearchView).apply {
-            setSearchableInfo(searchManager.getSearchableInfo(componentName))
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        if (item?.itemId == android.R.id.home) {
+            onBackPressed()
+            return true
         }
+        return super.onOptionsItemSelected(item)
+    }
 
-        return true
+    override fun onBackPressed() {
+        if (viewModel!!.queryString.value != null && viewModel!!.queryString.value != "") {
+            clearSearch()
+        } else {
+            super.onBackPressed()
+        }
     }
 }
