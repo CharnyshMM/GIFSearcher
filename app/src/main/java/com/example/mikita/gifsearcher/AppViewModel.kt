@@ -32,8 +32,8 @@ class AppViewModel : ViewModel() {
             LivePagedListBuilder<Int, GifObjectModel>(
                 factory,
                 PagedList.Config.Builder()
-                    .setInitialLoadSizeHint(10)
-                    .setPageSize(10)
+                    .setInitialLoadSizeHint(15)
+                    .setPageSize(5)
                     .setEnablePlaceholders(false)
                     .build()
             ).build()
