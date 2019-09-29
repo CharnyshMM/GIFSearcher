@@ -4,22 +4,25 @@
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:padding="1dp"
-              android:layout_margin="1dp"
-              android:background="@color/colorWhite"
+              android:layout_margin="5dp"
+              android:background="@drawable/gif_card_rounded_background"
 >
 
     <com.facebook.drawee.view.SimpleDraweeView
             android:id="@+id/gif_list_item__image_view"
-            fresco:actualImageScaleType="fitCenter"
-
+            fresco:actualImageScaleType="none"
+            android:adjustViewBounds="true"
             android:layout_width="match_parent"
             android:layout_height="200dp"
+
     />
 
     <TextView
             android:id="@+id/gif_list_item__title_text_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:padding="2dp"
+            android:textDirection="firstStrong"
     />
 </LinearLayout>
