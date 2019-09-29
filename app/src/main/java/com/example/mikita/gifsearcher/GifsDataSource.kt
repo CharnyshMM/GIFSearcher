@@ -1,6 +1,8 @@
 package com.example.mikita.gifsearcher
 
+import android.content.Intent
 import android.util.Log
+import android.widget.Toast
 import androidx.paging.DataSource
 import androidx.paging.PositionalDataSource
 import com.example.mikita.gifsearcher.Model.GifObjectModel
@@ -8,9 +10,13 @@ import com.example.mikita.gifsearcher.Model.ResponseObjectModel
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import javax.inject.Inject
+
+
 
 class GifsDataSource(val queryString: String?) : PositionalDataSource<GifObjectModel>() {
-    val giphyAPIService = GiphyAPIService.Factory.create()
+    var giphyAPIService:GiphyAPIService = DaggerNetworkComponent.create().service()
+
 
     override fun loadInitial(params: LoadInitialParams, callback: LoadInitialCallback<GifObjectModel>) {
         var call:Call<ResponseObjectModel>? = null

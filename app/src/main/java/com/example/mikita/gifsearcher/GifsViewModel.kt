@@ -14,16 +14,6 @@ class GifsViewModel : ViewModel() {
 
 
     var pagedGifsList: LiveData<PagedList<GifObjectModel>> = Transformations.switchMap(queryString) {
-//                if (it == null || it == "") {
-//                     LivePagedListBuilder<Int, GifObjectModel>(
-//                        GifsDataSource.GifsDataSourceFactory(),
-//                        PagedList.Config.Builder()
-//                            .setInitialLoadSizeHint(10)
-//                            .setPageSize(10)
-//                            .setEnablePlaceholders(false)
-//                            .build()
-//                    ).build()
-//                } else {
                      LivePagedListBuilder<Int, GifObjectModel>(
                         GifsDataSource.GifsDataSourceFactory(queryString.value),
                         PagedList.Config.Builder()
@@ -32,7 +22,6 @@ class GifsViewModel : ViewModel() {
                             .setEnablePlaceholders(false)
                             .build()
                     ).build()
-//                }
             }
 
 
