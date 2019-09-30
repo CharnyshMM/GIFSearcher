@@ -14,9 +14,9 @@ An app to load GIFs from [Giphy API](https://developers.giphy.com/)
  
  - In order to communicate with GIPHY API the app needs a private _api_key_
 
- - This key is added to app resources on build stage automatically by Graddle
+ - This key is added to app resources on build stage automatically by Gradle
 
- - Graddle takes the key from `[project_dir]/apikey.properties` file, where `[project_dir]` is your project root directory. The format of this file is shown below.
+ - Gradle takes the key from `[project_dir]/apikey.properties` file, where `[project_dir]` is your project root directory. The format of this file is shown below.
   
 ```
 	//[project_dir]/apikey.properties
