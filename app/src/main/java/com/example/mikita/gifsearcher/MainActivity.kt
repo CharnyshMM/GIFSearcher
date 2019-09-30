@@ -1,27 +1,20 @@
 package com.example.mikita.gifsearcher
 
 import android.app.SearchManager
-import android.content.ComponentCallbacks2
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.KeyEvent
-import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.view.inputmethod.EditorInfo
-import android.widget.EditText
-import android.widget.SearchView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
@@ -31,7 +24,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 class MainActivity : AppCompatActivity() {
 
     var gifsAdapter: GifsAdapter? = null
-    var viewModel:AppViewModel? = null
+    var viewModel: AppViewModel? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,10 +33,24 @@ class MainActivity : AppCompatActivity() {
 
         setSupportActionBar(toolbar)
 
+        viewModel = ViewModelProviders.of(this).get(AppViewModel::class.java)
+
+        handleIntent(intent)
+
         if (hasInternetConnection) {
-            setUpLoading()
+            setLoading()
         } else {
             Toast.makeText(this, "No internet", Toast.LENGTH_LONG).show()
+        }
+
+        main__swipe_refresh_layout.setOnRefreshListener {
+            if (hasInternetConnection) {
+                viewModel?.dataSource?.value?.invalidate()
+                setLoading()
+            } else {
+                Toast.makeText(this, getString(R.string.check_your_connection), Toast.LENGTH_LONG).show()
+                main__swipe_refresh_layout.isRefreshing = false
+            }
         }
 
         main__search_edit_text.setOnEditorActionListener(object : TextView.OnEditorActionListener {
@@ -62,32 +69,28 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private fun setUpLoading() {
-        viewModel = ViewModelProviders.of(this).get(AppViewModel::class.java)
-
-        handleIntent(intent)
-
+    private fun setLoading() {
         gifsAdapter = GifsAdapter(this, this.resources.configuration.orientation)
 
         viewModel!!.networkState.observe(this, Observer {
-            if (it  == NetworkState.LOADING) {
-                Toast.makeText(this, getString(R.string.loading_more), Toast.LENGTH_LONG).show()
+            if (it == NetworkState.LOADING) {
+                Toast.makeText(this, getString(R.string.loading), Toast.LENGTH_LONG).show()
             } else if (it == NetworkState.ERROR) {
                 Toast.makeText(this, getString(R.string.error), Toast.LENGTH_LONG).show()
-                if (main__swipe_refresh_layout.isRefreshing) {
-                    main__swipe_refresh_layout.isRefreshing = false
-                }
+                stopSwipeLayourRefreshing()
+            } else if (it == NetworkState.SERVER_ERROR) {
+                Toast.makeText(this, getString(R.string.error), Toast.LENGTH_LONG).show()
+                stopSwipeLayourRefreshing()
             } else {
                 if (main__swipe_refresh_layout.isRefreshing) {
                     main__swipe_refresh_layout.isRefreshing = false
                 }
             }
         })
-        viewModel!!.pagedGifsList.observe(this, Observer {
-                list -> run {
-            Log.d("observer", "*submits a list*, len=")
-            gifsAdapter?.submitList(list)
-        }
+        viewModel!!.pagedGifsList.observe(this, Observer { list ->
+            run {
+                gifsAdapter?.submitList(list)
+            }
         })
 
         if (this.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -98,17 +101,13 @@ class MainActivity : AppCompatActivity() {
 
         main__recycler_view.adapter = gifsAdapter
 
-        main__swipe_refresh_layout.setOnRefreshListener {
-            viewModel?.dataSource?.value?.invalidate()
-        }
-
     }
 
-    private var hasInternetConnection:Boolean = false
+    private val hasInternetConnection: Boolean
         get() {
             val cm = applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
             val activeNetwork: NetworkInfo? = cm.activeNetworkInfo
-            return  activeNetwork?.isConnected == true
+            return activeNetwork?.isConnected == true
         }
 
     private fun handleIntent(intent: Intent?) {
@@ -120,11 +119,17 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun clearSearch() {
+    private fun clearSearch() {
         viewModel!!.queryString.postValue(null)
         main__search_edit_text.setText("")
         main__search_edit_text.clearFocus()
         supportActionBar!!.setDisplayHomeAsUpEnabled(false)
+    }
+
+    private fun stopSwipeLayourRefreshing() {
+        if (main__swipe_refresh_layout.isRefreshing) {
+            main__swipe_refresh_layout.isRefreshing = false
+        }
     }
 
     override fun onNewIntent(intent: Intent?) {

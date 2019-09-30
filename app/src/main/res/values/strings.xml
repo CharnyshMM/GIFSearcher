@@ -1,9 +1,9 @@
 <resources>
     <string name="app_name">GIF Searcher</string>
-    <string name="search_title">Search gifs</string>
-    <string name="search_hint">Search gifs</string>
-    <string name="search_for_gifs">Search for gifs…</string>
+    <string name="search_hint">Search GIFs…</string>
     <string name="unknown_user">unknown genius</string>
-    <string name="loading_more">Loading more</string>
-    <string name="error">ERROR</string>
+    <string name="loading">Loading…</string>
+    <string name="error">Network error!</string>
+    <string name="server_error">Server error!</string>
+    <string name="check_your_connection">Please, check your connection and retry</string>
 </resources>
