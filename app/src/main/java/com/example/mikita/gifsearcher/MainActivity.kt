@@ -8,6 +8,8 @@ import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import android.os.Bundle
 import android.view.KeyEvent
+import android.view.Menu
+import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.inputmethod.EditorInfo
 import android.widget.TextView
@@ -26,6 +28,24 @@ class MainActivity : AppCompatActivity() {
     var gifsAdapter: GifsAdapter? = null
     var viewModel: AppViewModel? = null
 
+
+    private val hasInternetConnection: Boolean
+        get() {
+            val cm = applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+            val activeNetwork: NetworkInfo? = cm.activeNetworkInfo
+            return activeNetwork?.isConnected == true
+        }
+
+    private var _hasNetworkError: Boolean = false
+    private var hasNetworkError: Boolean
+        get() = _hasNetworkError
+        set(value) {
+            if (value != _hasNetworkError) {
+                _hasNetworkError = value
+                invalidateOptionsMenu()
+            }
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -41,16 +61,11 @@ class MainActivity : AppCompatActivity() {
             setLoading()
         } else {
             Toast.makeText(this, "No internet", Toast.LENGTH_LONG).show()
+            hasNetworkError = true
         }
 
         main__swipe_refresh_layout.setOnRefreshListener {
-            if (hasInternetConnection) {
-                viewModel?.dataSource?.value?.invalidate()
-                setLoading()
-            } else {
-                Toast.makeText(this, getString(R.string.check_your_connection), Toast.LENGTH_LONG).show()
-                main__swipe_refresh_layout.isRefreshing = false
-            }
+            refresh()
         }
 
         main__search_edit_text.setOnEditorActionListener(object : TextView.OnEditorActionListener {
@@ -69,6 +84,19 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    private fun refresh() {
+        if (hasInternetConnection) {
+            viewModel?.dataSource?.value?.invalidate()
+            setLoading()
+            hasNetworkError = false
+
+        } else {
+            Toast.makeText(this, getString(R.string.check_your_connection), Toast.LENGTH_LONG).show()
+            main__swipe_refresh_layout.isRefreshing = false
+            hasNetworkError = true
+        }
+    }
+
     private fun setLoading() {
         gifsAdapter = GifsAdapter(this, this.resources.configuration.orientation)
 
@@ -78,13 +106,16 @@ class MainActivity : AppCompatActivity() {
             } else if (it == NetworkState.ERROR) {
                 Toast.makeText(this, getString(R.string.error), Toast.LENGTH_LONG).show()
                 stopSwipeLayourRefreshing()
+                hasNetworkError = true
             } else if (it == NetworkState.SERVER_ERROR) {
                 Toast.makeText(this, getString(R.string.error), Toast.LENGTH_LONG).show()
                 stopSwipeLayourRefreshing()
+                hasNetworkError = true
             } else {
                 if (main__swipe_refresh_layout.isRefreshing) {
                     main__swipe_refresh_layout.isRefreshing = false
                 }
+                hasNetworkError = false
             }
         })
         viewModel!!.pagedGifsList.observe(this, Observer { list ->
@@ -103,12 +134,6 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private val hasInternetConnection: Boolean
-        get() {
-            val cm = applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-            val activeNetwork: NetworkInfo? = cm.activeNetworkInfo
-            return activeNetwork?.isConnected == true
-        }
 
     private fun handleIntent(intent: Intent?) {
         if (Intent.ACTION_SEARCH == intent?.action) {
@@ -137,10 +162,25 @@ class MainActivity : AppCompatActivity() {
         super.onNewIntent(intent)
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        val inflater: MenuInflater = menuInflater
+        inflater.inflate(R.menu.toolbar_menu, menu)
+        if (hasNetworkError) {
+            menu?.findItem(R.id.toolbar_menu__refresh)?.isVisible = true
+        }
+
+        return super.onCreateOptionsMenu(menu)
+    }
+
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        if (item?.itemId == android.R.id.home) {
-            onBackPressed()
-            return true
+        when (item?.itemId) {
+            android.R.id.home -> {
+                onBackPressed()
+                return true
+            }
+            R.id.toolbar_menu__refresh -> {
+                refresh()
+            }
         }
         return super.onOptionsItemSelected(item)
     }

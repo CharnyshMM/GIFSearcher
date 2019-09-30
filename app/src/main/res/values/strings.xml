@@ -6,4 +6,5 @@
     <string name="error">Network error!</string>
     <string name="server_error">Server error!</string>
     <string name="check_your_connection">Please, check your connection and retry</string>
+    <string name="refresh">Refresh</string>
 </resources>
