@@ -1,13 +1,14 @@
-package com.example.mikita.gifsearcher
+package com.example.mikita.gifsearcher.ViewModels
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
-import androidx.paging.DataSource
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
-import com.example.mikita.gifsearcher.Model.GifObjectModel
+import com.example.mikita.gifsearcher.Models.GifObjectModel
+import com.example.mikita.gifsearcher.Networking.GifsDataSource
+import com.example.mikita.gifsearcher.Networking.NetworkState
 
 class AppViewModel : ViewModel() {
 
@@ -28,7 +29,7 @@ class AppViewModel : ViewModel() {
             it.networkState
         }
 
-        pagedGifsList= Transformations.switchMap(queryString) {
+        pagedGifsList = Transformations.switchMap(queryString) {
             LivePagedListBuilder<Int, GifObjectModel>(
                 factory,
                 PagedList.Config.Builder()

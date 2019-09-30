@@ -1,4 +1,4 @@
-package com.example.mikita.gifsearcher.Model
+package com.example.mikita.gifsearcher.Models
 
 import com.squareup.moshi.Json
 

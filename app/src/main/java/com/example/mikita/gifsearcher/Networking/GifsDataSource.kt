@@ -1,18 +1,20 @@
-package com.example.mikita.gifsearcher
+package com.example.mikita.gifsearcher.Networking
 
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.paging.DataSource
 import androidx.paging.PositionalDataSource
-import com.example.mikita.gifsearcher.Model.GifObjectModel
-import com.example.mikita.gifsearcher.Model.ResponseObjectModel
+import com.example.mikita.gifsearcher.BuildConfig
+import com.example.mikita.gifsearcher.Models.GifObjectModel
+import com.example.mikita.gifsearcher.Models.ResponseObjectModel
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 
 class GifsDataSource(val queryString: String?) : PositionalDataSource<GifObjectModel>() {
-    var giphyAPIService: GiphyAPIService = GiphyAPIService.create()
+    var giphyAPIService: GiphyAPIService =
+        GiphyAPIService.create()
 
     val networkState: MutableLiveData<NetworkState> = MutableLiveData()
 

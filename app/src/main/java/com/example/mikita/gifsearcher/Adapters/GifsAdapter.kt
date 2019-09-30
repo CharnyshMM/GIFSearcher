@@ -1,4 +1,4 @@
-package com.example.mikita.gifsearcher
+package com.example.mikita.gifsearcher.Adapters
 
 import android.content.Context
 import android.content.res.Configuration
@@ -8,30 +8,34 @@ import android.view.ViewGroup
 import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.example.mikita.gifsearcher.Model.GifObjectModel
-import com.example.mikita.gifsearcher.Model.ImageObjectModel
-import com.example.mikita.gifsearcher.Model.ImagesObjectModel
+import com.example.mikita.gifsearcher.Models.GifObjectModel
+import com.example.mikita.gifsearcher.Models.ImageObjectModel
+import com.example.mikita.gifsearcher.Models.ImagesObjectModel
+import com.example.mikita.gifsearcher.R
 import com.facebook.drawee.backends.pipeline.Fresco
 import kotlinx.android.synthetic.main.gif_list_item.view.*
 import kotlin.math.roundToInt
 
 class GifsAdapter(
-//    val items: ArrayList<GifObjectModel>,
-    val context: Context,
-    val orientation: Int
+    private val context: Context,
+    private val orientation: Int
 ) : PagedListAdapter<GifObjectModel, GifsAdapter.ViewHolder>(diffCallback) {
 
     var recyclerViewWidth: Int = 0
-    var recyclerViewHeight: Int = 0
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         recyclerViewWidth = parent.width
-        recyclerViewHeight = parent.height
 
-        return ViewHolder(LayoutInflater.from(context).inflate(R.layout.gif_list_item, parent, false))
+        return ViewHolder(
+            LayoutInflater.from(context).inflate(
+                R.layout.gif_list_item,
+                parent,
+                false
+            )
+        )
     }
 
-    fun selectGifUriToLoad(images: ImagesObjectModel): ImageObjectModel {
+    private fun selectGifUriToLoad(images: ImagesObjectModel): ImageObjectModel {
         val image = images.downsized
             ?: if (images.fixedHeight != null) {
                 images.fixedHeight
@@ -41,8 +45,7 @@ class GifsAdapter(
         return image
     }
 
-    fun getHeightForTile(realH: Int, realW: Int, holderWidth: Int): Int {
-        //context.resources.displayMetrics.widthPixels)
+    private fun getHeightForTile(realH: Int, realW: Int, holderWidth: Int): Int {
         return (realH / (realW.toFloat() / holderWidth)).roundToInt()
     }
 
@@ -50,17 +53,18 @@ class GifsAdapter(
         val gif = getItem(position)!!
 
         val image = selectGifUriToLoad(gif.images)
-        val c = Fresco.newDraweeControllerBuilder()
+        val controller = Fresco.newDraweeControllerBuilder()
             .setUri(if (image.webp != null) image.webp else image.url)
             .setAutoPlayAnimations(true)
             .build()
 
         val height = image.height.toInt()
         val width = image.width.toInt()
-        val cardWidth = if (orientation == Configuration.ORIENTATION_LANDSCAPE)
-            (recyclerViewWidth / 2) else recyclerViewWidth
+        val cardWidth =
+            if (orientation == Configuration.ORIENTATION_LANDSCAPE) (recyclerViewWidth / 2) else recyclerViewWidth
+
         holder.gifImageView.layoutParams.height = getHeightForTile(height, width, cardWidth)
-        holder.gifImageView.controller = c
+        holder.gifImageView.controller = controller
         holder.titleTextView.text = if (gif.title != "") gif.title else gif.slug
         holder.authorTextView.text = if (gif.username != "") gif.username else context.getString(R.string.unknown_user)
         holder.sourceTextView.text = if (gif.source != "") gif.source else gif.url

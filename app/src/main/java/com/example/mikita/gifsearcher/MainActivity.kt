@@ -20,6 +20,9 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import com.example.mikita.gifsearcher.Adapters.GifsAdapter
+import com.example.mikita.gifsearcher.Networking.NetworkState
+import com.example.mikita.gifsearcher.ViewModels.AppViewModel
 import com.facebook.drawee.backends.pipeline.Fresco
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -36,12 +39,11 @@ class MainActivity : AppCompatActivity() {
             return activeNetwork?.isConnected == true
         }
 
-    private var _hasNetworkError: Boolean = false
-    private var hasNetworkError: Boolean
-        get() = _hasNetworkError
+
+    private var hasNetworkError: Boolean = false
         set(value) {
-            if (value != _hasNetworkError) {
-                _hasNetworkError = value
+            if (value != field) {
+                field = value
                 invalidateOptionsMenu()
             }
         }
@@ -79,9 +81,44 @@ class MainActivity : AppCompatActivity() {
                 }
                 return false
             }
-
         })
+    }
 
+
+    override fun onNewIntent(intent: Intent?) {
+        handleIntent(intent)
+        super.onNewIntent(intent)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        val inflater: MenuInflater = menuInflater
+        inflater.inflate(R.menu.toolbar_menu, menu)
+        if (hasNetworkError) {
+            menu?.findItem(R.id.toolbar_menu__refresh)?.isVisible = true
+        }
+
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        when (item?.itemId) {
+            android.R.id.home -> {
+                onBackPressed()
+                return true
+            }
+            R.id.toolbar_menu__refresh -> {
+                refresh()
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+    override fun onBackPressed() {
+        if (viewModel!!.queryString.value != null && viewModel!!.queryString.value != "") {
+            clearSearch()
+        } else {
+            super.onBackPressed()
+        }
     }
 
     private fun refresh() {
@@ -98,7 +135,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setLoading() {
-        gifsAdapter = GifsAdapter(this, this.resources.configuration.orientation)
+        gifsAdapter =
+            GifsAdapter(this, this.resources.configuration.orientation)
 
         viewModel!!.networkState.observe(this, Observer {
             if (it == NetworkState.LOADING) {
@@ -157,39 +195,4 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onNewIntent(intent: Intent?) {
-        handleIntent(intent)
-        super.onNewIntent(intent)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        val inflater: MenuInflater = menuInflater
-        inflater.inflate(R.menu.toolbar_menu, menu)
-        if (hasNetworkError) {
-            menu?.findItem(R.id.toolbar_menu__refresh)?.isVisible = true
-        }
-
-        return super.onCreateOptionsMenu(menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        when (item?.itemId) {
-            android.R.id.home -> {
-                onBackPressed()
-                return true
-            }
-            R.id.toolbar_menu__refresh -> {
-                refresh()
-            }
-        }
-        return super.onOptionsItemSelected(item)
-    }
-
-    override fun onBackPressed() {
-        if (viewModel!!.queryString.value != null && viewModel!!.queryString.value != "") {
-            clearSearch()
-        } else {
-            super.onBackPressed()
-        }
-    }
 }
